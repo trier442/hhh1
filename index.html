@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>함현고1 기말대비 국어 실전테스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            color: #4B5563;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .tab:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
+        .tab.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+            font-weight: 700;
+        }
+        .question-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .prose-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        .option-label {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .option-label:hover {
+            background-color: #f3f4f6;
+        }
+        input[type="radio"]:checked + .option-label {
+            background-color: #eef2ff;
+            border-color: #4f46e5;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        input[type="radio"] {
+            display: none;
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        #submission-status {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        #submission-status.success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        #submission-status.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">함현고1 기말대비 국어 실전테스트</h1>
+        </header>
+
+        <nav class="mb-8 bg-white rounded-lg shadow-md">
+            <div id="tab-container" class="flex border-b border-gray-200">
+                <!-- Tabs will be inserted here by JS -->
+            </div>
+        </nav>
+
+        <main id="content-area">
+            <!-- Test content will be loaded here -->
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 여기에 구글 앱 스크립트 배포 후 생성된 URL을 입력하세요.
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZajamMSCCoanzQ6zwCUHzU4Siy5EtusCrYaknHaXgJiyoj4iGWMezlU-zaEtqbjpa/exec'; 
+
+            const examData = {
+                test1: {
+                    title: '실전 테스트 1',
+                    questions: [
+                        { work: '문법 요소', type: '높임 표현', question: "다음 문장에서 주체 높임, 객체 높임, 상대 높임이 모두 사용된 것은?", options: ["할아버지, 버스 왔어요.", "어머니께서 동생에게 선물을 주셨다.", "제가 선생님께 책을 드렸습니다.", "선생님, 잠깐 시간 있으세요?", "아버지께서 할머니를 모시고 댁에 가셨습니다."], answer: 4, explanation: "'아버지께서' (주체 높임), '할머니를 모시고' (객체 높임), '-습니다' (상대 높임)가 모두 사용되었습니다." },
+                        { work: '문법 요소', type: '시간 표현', question: "밑줄 친 부분의 시제가 나머지와 다른 하나는?", options: ["어제 본 영화가 재미있었다.", "나는 지금 밥을 먹는다.", "내일 그가 떠나겠다.", "그는 예쁜 옷을 입고 있다.", "그녀가 웃는 모습이 아름답다."], answer: 2, explanation: "③은 미래 시제(-겠-)를 나타내고, 나머지는 모두 현재 시제(① -은(관형사형), ② -는-(선어말), ④ -는(관형사형), ⑤ -는(관형사형))를 나타냅니다." },
+                        { work: '문법 요소', type: '피동 표현', question: "다음 중 이중 피동 표현으로 인해 어법에 맞지 않는 문장은?", options: ["도둑이 경찰에게 잡혔다.", "그 문제는 쉽게 풀렸다.", "창문이 바람에 저절로 열려졌다.", "그의 말이 사실로 믿긴다.", "새로운 건물이 지어지고 있다."], answer: 2, explanation: "'열리다'의 '-리-'는 피동 접미사인데, 여기에 '-어지다'를 또 붙여 '열려지다'라고 사용하는 것은 이중 피동으로 어법에 맞지 않습니다. '열렸다'로 고쳐야 합니다." },
+                        { work: '문법 요소', type: '인용 표현', question: "다음 직접 인용문을 간접 인용문으로 바르게 고친 것은?", passage: "철수는 나에게 \"내일 우리 집에 같이 가자.\"라고 말했다.", options: ["철수는 나에게 내일 자기 집에 같이 가자고 말했다.", "철수는 나에게 오늘 저희 집에 같이 가자고 말했다.", "철수는 나에게 내일 저희 집에 같이 가자고 말했다.", "철수는 나에게 오늘 너희 집에 같이 가자고 말했다.", "철수는 나에게 내일 우리 집에 같이 가자고 말했다."], answer: 0, explanation: "간접 인용으로 바꾸면 인용 부호가 사라지고 조사 '고'가 붙습니다. 또한 인칭대명사 '우리'는 문맥에 맞게 '자기'로 바뀌어야 합니다. 시간 부사어 '내일'은 발화 시점과 전달 시점이 크게 차이 나지 않으면 그대로 사용할 수 있습니다." },
+                        { work: '날개', type: '작품의 특징', question: "이상의 소설 「날개」에 대한 설명으로 가장 적절하지 않은 것은?", options: ["1930년대 무기력한 식민지 지식인의 모습을 그리고 있다.", "주인공 '나'의 내면 심리를 중심으로 서술된다.", "시간 순서에 따른 사실적인 사건 전개를 특징으로 한다.", "상징적인 소재를 통해 주제 의식을 드러낸다.", "'나'와 '아내'의 비정상적이고 역전된 관계가 나타난다."], answer: 2, explanation: "「날개」는 논리적인 인과관계나 시간 순서보다는 주인공의 머릿속에 떠오르는 생각과 감각을 그대로 서술하는 '의식의 흐름' 기법을 사용하여, 분열된 자아의 내면을 효과적으로 보여줍니다." },
+                        { work: '날개', type: '공간의 상징성', question: "「날개」에서 '나'의 방과 아내의 방이 갖는 상징적 의미를 바르게 짝지은 것은?", options: ["이상 - 현실", "과거 - 미래", "현실 - 과거", "내면 - 외부", "안식 - 불안"], answer: 3, explanation: "'나'의 방은 '해가 영영 들지 않는' 폐쇄적이고 어두운 공간으로, 현실과 단절된 '나'의 내면 혹은 무의식의 세계를 상징합니다. 반면 아내의 방은 '해가 드는' 밝고 화려한 공간으로, '나'와 달리 외부 세계와 활발하게 교류하는 공간입니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '화자의 태도', question: "김수영의 「어느 날 고궁을 나오면서」에서 화자가 '조그마한 일에만 분개하는' 이유로 가장 적절한 것은?", options: ["사소한 일들이 더 중요하다고 생각하기 때문에", "정의감이 투철하여 어떤 불의도 참지 못하기 때문에", "자신의 힘이 약해 큰 권력에는 저항하지 못하기 때문에", "과거의 트라우마 때문에 큰일에 무감각해졌기 때문에", "세상의 모든 부조리에 관심이 많기 때문에"], answer: 2, explanation: "화자는 '왕궁의 음탕'이나 '언론의 자유'와 같은 본질적이고 거대한 부조리에는 저항하지 못하고, 갈비의 기름덩어리나 야경꾼처럼 사소하고 만만한 대상에게만 분개하는 자신의 소시민적 비겁함을 자조적으로 고백하고 있습니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '시어의 의미', passage: "아무래도 나는 비켜서 있다 절정(絕頂) 위에는 서 있지 / 않고 암만해도 조금쯤 옆으로 비켜서 있다", question: "위 구절에서 '절정'이 상징하는 바로 가장 적절한 것은?", options: ["개인적인 성공의 최고점", "인생에서 가장 행복했던 순간", "사회적 부조리에 맞서 싸우는 치열한 현실의 중심", "모든 것을 초월한 평화로운 경지", "아무도 없는 고독한 공간"], answer: 2, explanation: "'절정'은 역사와 사회의 문제에 정면으로 맞서 치열하게 저항하는 공간을 의미합니다. 화자는 자신이 그 중심에 서지 못하고 '조금쯤 옆으로 비켜서 있'는 비겁한 존재임을 자각하고 있습니다." },
+                        { work: '당신을 보았습니다', type: '화자의 상황', question: "한용운의 「당신을 보았습니다」에서 화자가 '당신'을 보게 되는 공통적인 상황은?", options: ["기쁘고 행복한 순간", "자연의 아름다움을 느낄 때", "삶의 의미를 깨달았을 때", "고통스럽고 굴욕적인 절망의 순간", "오랜 기다림 끝에 재회하는 순간"], answer: 3, explanation: "화자는 가난으로 멸시받고, 인권을 유린당하는 등 가장 고통스럽고 절망적인 상황 속에서 역설적으로 구원과 희망의 표상인 '당신'의 존재를 발견하고 확인합니다." },
+                        { work: '당신을 보았습니다', type: '시어의 상징성', question: "「당신을 보았습니다」에서 '온갖 윤리, 도덕, 법률'이 '칼과 황금을 제사 지내는 연기'와 같다고 한 의미는?", options: ["사회 규범은 정의를 실현하는 도구이다.", "지배 계층의 권력과 부를 유지하기 위한 허위적인 것이다.", "진정한 가치는 물질적인 것에서 비롯된다.", "윤리와 법률은 변하지 않는 절대적 진리이다.", "사회의 모든 규범은 연기처럼 사라질 덧없는 것이다."], answer: 1, explanation: "화자는 당대의 윤리, 도덕, 법률이 일반 백성을 위한 것이 아니라, 힘('칼')과 돈('황금')을 가진 지배 계층의 이익을 위해 존재하는 허위적인 것임을 깨닫고 비판하고 있습니다." },
+                        { work: '장수산 1', type: '표현상의 특징', question: "정지용의 「장수산 1」에 대한 설명으로 적절하지 않은 것은?", options: ["감각적인 이미지를 활용하여 산중의 정경을 묘사하고 있다.", "예스러운 어투를 사용하여 고풍스러운 분위기를 자아낸다.", "화자의 정서를 자연물에 이입하여 표현하고 있다.", "화자의 내면을 독백적인 어조로 서술하고 있다.", "시행의 종결을 의도적으로 생략하여 여운을 남긴다."], answer: 2, explanation: "이 시는 화자의 감정을 자연물에 직접 이입하기보다는, 고요하고 탈속적인 자연('장수산')과 속세의 시름으로 흔들리는 자신을 대비시켜 주제를 드러내고 있습니다." },
+                        { work: '장수산 1', type: '화자의 지향', question: "「장수산 1」의 화자가 '웃절 중'의 '남긴 내음새를 줏는다'고 한 것은 무엇을 의미하는가?", options: ["속세에 대한 미련을 버리지 못함", "불교에 귀의하고자 하는 마음", "웃절 중의 소박한 삶의 태도를 본받고 싶음", "자연의 아름다움에 완전히 동화됨", "웃절 중의 체취를 실제로 맡고 있음"], answer: 2, explanation: "여섯 판을 모두 지고도 웃는 '웃절 중'은 승부에 연연하지 않는 탈속적인 인물입니다. 그의 '내음새를 줍는다'는 것은 그의 무욕하고 여유로운 삶의 자세를 배우고 따르고 싶다는 화자의 소망을 드러낸 것입니다." },
+                        { work: '미성년자의 계약 취소권', type: '내용의 이해', question: "윗글에 따르면, 미성년자가 부모 동의 없이 계약했을 때, 법정 대리인이 계약을 취소할 수 있는 이유는?", options: ["미성년자의 판단 능력이 부족하여 불리한 계약을 하는 것을 막기 위해", "판매업자의 부당한 이익을 막기 위해", "미성년자의 무분별한 소비를 막기 위해", "법정 대리인의 동의 없는 모든 계약은 불법이기 때문에", "계약으로 인해 부모에게 경제적 피해가 가기 때문에"], answer: 0, explanation: "민법 제5조는 미성년자가 사회적 경험과 지식, 판단 능력이 부족하여 자신에게 불리한 법률행위를 하는 것을 방지하고 미성년자를 보호하기 위해 취소권을 부여하고 있습니다." },
+                        { work: '미성년자의 계약 취소권', type: '구체적 상황 적용', passage: "17세의 고등학생이 부모의 동의 없이 60만 원의 다이어트 식품을 할부로 구매하여 절반 정도 복용했지만, 효과가 없자 계약을 취소했다.", question: "위 사례에서 학생이 판매업자에게 이미 지불한 20만원을 돌려받을 수 있는가?", options: ["돌려받을 수 없다.", "돌려받을 수 있다.", "절반인 10만원만 돌려받을 수 있다.", "사용한 만큼을 제외한 금액만 돌려받을 수 있다.", "판매업자와 합의해야 한다."], answer: 1, explanation: "민법 제141조에 따라, 생활필수품이 아닌 다이어트 식품의 경우, 사용한 만큼의 대금을 반환할 필요가 없으며, 오히려 이미 지급한 대금의 반환을 요구할 수 있습니다. 따라서 20만원을 돌려받을 수 있습니다." },
+                        { work: '식욕의 작용 원리', type: '정보의 확인', question: "윗글의 내용과 일치하지 않는 것은?", options: ["식욕은 뇌의 시상 하부에 있는 식욕 중추의 영향을 받는다.", "혈중 포도당 농도가 높아지면 인슐린이 분비되어 포만감을 느끼게 한다.", "공복 상태가 길어지면 지방산이 분비되어 식욕이 느껴진다.", "음식의 맛이나 냄새에 대한 기억은 섭식 중추에서 담당한다.", "디저트를 먹을 배가 따로 있다는 말은 생물학적으로 근거가 있다."], answer: 3, explanation: "음식의 맛, 냄새 등 다양한 감각 정보를 종합적으로 기억하고 판단하는 역할은 식욕 중추가 아닌 대뇌의 '전두 연합 영역'에서 담당합니다." },
+                        { work: '식욕의 작용 원리', type: '작용 원리 이해', question: "식사를 마쳐 배가 부른 상태임에도 디저트를 먹을 수 있는 이유로 가장 적절한 것은?", options: ["위의 크기가 일시적으로 늘어나기 때문에", "전두 연합 영역의 신호로 오렉신이 분비되어 위에 공간을 만들기 때문에", "포만 중추가 마비되어 더 이상 배부름을 느끼지 못하기 때문에", "단맛이 섭식 중추를 강하게 자극하기 때문에", "스트레스로 인해 식욕 억제 호르몬이 줄어들기 때문에"], answer: 1, explanation: "전두 연합 영역이 '맛있다'는 신호를 보내면, 섭식 중추에서 '오렉신'이라는 물질이 분비됩니다. 이 오렉신이 위의 운동을 촉진하여 내용물을 밀어내고 디저트가 들어갈 공간을 마련하는 것입니다." },
+                        { work: '작품 비교', type: '화자의 태도', question: "「날개」의 '나'와 「어느 날 고궁을 나오면서」의 '나'의 공통점으로 가장 적절한 것은?", options: ["현실에 적극적으로 저항하고 있다.", "자신의 삶에 대해 높은 자부심을 느낀다.", "사회의 부조리를 외면하고 있다.", "무기력한 자신의 모습을 반성하고 성찰한다.", "경제적으로 매우 유능하다."], answer: 3, explanation: "두 작품의 '나'는 모두 사회와 현실에 제대로 적응하지 못하고 무기력하게 살아가는 자신의 모습을 부정적으로 인식하고, 고뇌하며 반성적으로 성찰하는 지식인의 모습을 보여줍니다." },
+                        { work: '작품 비교', type: '상징적 의미', question: "「날개」의 '날개'와 「장수산 1」의 '장수산'이 각각 상징하는 바로 가장 적절하게 짝지어진 것은?", options: ["자유 - 속세", "본질적 자아 - 탈속의 공간", "사랑 - 이별", "희망 - 절망", "과거 - 미래"], answer: 1, explanation: "「날개」의 '날개'는 억압된 현실에서 벗어나 본래의 자아를 회복하고 자유롭게 비상하고 싶은 욕망을 상징하며, 「장수산 1」의 '장수산'은 속세의 시름에서 벗어난 고요하고 순수한 탈속적 공간을 상징합니다." },
+                        { work: '작품 비교', type: '문법 요소 활용', question: "「당신을 보았습니다」에서 '주인'과 '장군'의 말을 직접 인용한 것과, 「문법 요소」에서 배운 인용 표현의 효과를 연결한 것으로 가장 적절한 것은?", options: ["내용을 요약하여 전달하기 위해", "화자의 주관적인 감정을 배제하기 위해", "현장의 생생함과 사실성을 높이기 위해", "문장의 길이를 간결하게 줄이기 위해", "부드러운 분위기를 조성하기 위해"], answer: 2, explanation: "주인과 장군의 말을 큰따옴표를 사용하여 그대로 인용함으로써, 화자가 겪은 굴욕적이고 폭력적인 상황을 생생하게 전달하고 그 부당함을 강조하는 효과를 얻습니다. 이는 사실성을 높이는 인용 표현의 주된 기능입니다." },
+                        { work: '문법 요소', type: '높임 표현의 종류', passage: "어머니, 아버지께서 진지 잡수시래요.", question: "위 문장에 사용되지 않은 높임 표현은?", options: ["주체 높임 (직접 높임)", "주체 높임 (간접 높임)", "객체 높임", "상대 높임 (해요체)", "상대 높임 (하십시오체)"], answer: 2, explanation: "'아버지께서'(-께서), '잡수시래요'(-시-)는 주체 높임이며, '어머니'라는 청자를 높이는 '해요체'를 사용하여 상대 높임이 쓰였습니다. 하지만 목적어나 부사어가 지시하는 대상을 높이는 객체 높임은 사용되지 않았습니다." },
+                        { work: '문법 요소', type: '동작상 구분', question: "다음 중 동작의 '진행'을 나타내는 문장은?", options: ["나는 이미 밥을 다 먹어 버렸다.", "그는 의자에 앉아 있다.", "아이가 잠이 들었다.", "나는 지금 도서관에 가고 있다.", "숙제를 다 해 놓았다."], answer: 3, explanation: "'-고 있다'는 진행과 완료의 의미를 모두 가질 수 있지만, '가고 있다'는 '가는 중'이라는 진행의 의미로만 해석됩니다. 나머지는 모두 동작이 완료된 상태를 나타냅니다." },
+                        { work: '날개', type: '핵심 소재의 기능', question: "「날개」에서 '돈(은화)'은 '나'에게 어떤 의미를 지니는가?", options: ["아내로부터의 경제적 독립을 의미한다.", "자아를 찾기 위한 여행 경비를 의미한다.", "아내에게 사육당하고 종속되어 있음을 상징한다.", "세상에 대한 나의 영향력을 상징한다.", "나의 무능함을 극복하게 하는 수단이다."], answer: 2, explanation: "'나'는 아내가 주는 돈으로만 생활하며, 이 돈은 아내의 매춘 행위의 대가입니다. 따라서 '돈'은 '나'가 아내에게 경제적으로 완벽하게 종속되어 비정상적인 관계 속에 사육당하고 있음을 상징하는 소재입니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '자조적 태도', question: "「어느 날 고궁을 나오면서」에서 화자가 '모래야 나는 얼마큼 작으냐 / 바람아 먼지야 풀아 나는 얼마큼 작으냐'라고 말하는 이유는?", options: ["자연의 위대함에 감탄하여", "자신의 존재가 보잘것없음을 느끼며 자책하여", "자연물과 교감하고 싶어서", "겸손한 태도를 보이고 싶어서", "자신의 작은 키를 한탄하여"], answer: 1, explanation: "모래, 먼지, 풀과 같이 작고 미미한 자연물보다도 자신이 더 작다고 느끼며, 거대한 부조리 앞에서 아무것도 하지 못하는 자신의 왜소하고 초라한 모습을 자책하고 조롱하는(자조) 표현입니다." },
+                        { work: '당신을 보았습니다', type: '작품의 성격', question: "한용운의 「당신을 보았습니다」에 대한 설명으로 가장 적절하지 않은 것은?", options: ["여성적 화자를 설정하여 애절함을 더하고 있다.", "산문적인 서술 방식으로 화자의 생각을 논리적으로 전개한다.", "경어체를 사용하여 대상에 대한 경건한 태도를 보인다.", "자연과의 합일을 통해 현실의 고통을 극복하고자 한다.", "'당신'이라는 상징적 시어를 통해 다양한 해석의 가능성을 연다."], answer: 3, explanation: "이 시는 자연과의 합일을 통한 현실 극복보다는, 굴욕적인 현실 속에서 '당신'이라는 절대적 존재를 발견하고 그를 통해 구원의 희망과 저항 의지를 다지는 모습을 보여줍니다." },
+                        { work: '장수산 1', type: '시어의 의미', passage: "깊은 산 고요가 차라리 뼈를 저리우는데", question: "위 구절에 대한 설명으로 가장 적절한 것은?", options: ["청각의 촉각화를 통해 극심한 고요함을 표현했다.", "산의 추위 때문에 실제로 뼈가 시리다는 의미이다.", "화자가 병으로 인해 고통받고 있음을 암시한다.", "고요함 속에서 느끼는 평화로움과 안락함을 나타낸다.", "외부 세계와의 단절로 인한 공포감을 드러낸다."], answer: 0, explanation: "'고요'라는 청각적 상태를 '뼈를 저리운다'는 촉각적 느낌으로 전이시킨 공감각적 표현입니다. 이를 통해 소리 하나 들리지 않는 장수산의 극심한 정적과 고요함을 효과적으로 전달합니다." }
+                    ]
+                },
+                test3: { 
+                    title: '실전 테스트 3',
+                    questions: [
+                        { work: '날개', type: '갈등의 유형', question: "「날개」의 주인공 '나'가 겪는 주된 갈등의 양상은?", options: ["'나'와 아내 사이의 외적 갈등", "'나'와 사회 제도 사이의 외적 갈등", "무기력한 자아와 비상하려는 자아 사이의 내적 갈등", "가난이라는 현실과 이상 사이의 내적 갈등", "전통적 가치관과 근대적 가치관의 내적 갈등"], answer: 2, explanation: "이 소설은 아내에게 사육당하며 무기력하게 살아가는 자아와, 이러한 현실을 벗어나 '날개'를 달고 비상하고 싶어하는 본래적 자아 사이의 분열과 내적 갈등을 중심으로 전개됩니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '시구의 의미', passage: "옹졸한 나의 전통은 유구하고 이제 내 앞에 정서(情緒)로 / 가로놓여 있다.", question: "위 구절이 의미하는 바로 가장 적절한 것은?", options: ["나의 소심한 성격은 조상으로부터 물려받은 것이다.", "오랜 시간 동안 부조리에 저항해 온 나의 신념을 의미한다.", "나의 옹졸함이 이제는 하나의 감정처럼 굳어져 버렸음을 의미한다.", "나의 옹졸함 때문에 앞으로의 삶이 순탄치 않을 것임을 의미한다.", "전통적인 가치를 지키려는 나의 고집스러운 태도를 의미한다."], answer: 2, explanation: "화자는 자신의 옹졸하고 소시민적인 태도가 매우 오래되었고('유구하고'), 이제는 이성적 판단이 아닌 하나의 감정('정서')처럼 자신 앞에 놓여 있어 극복하기 어려운 상태임을 고백하고 있습니다." },
+                        { work: '당신을 보았습니다', type: '작품의 구조', question: "「당신을 보았습니다」의 시상 전개 방식의 특징으로 가장 적절한 것은?", options: ["시간의 흐름에 따라 화자의 감정이 변화한다.", "선경후정의 방식으로 자연 풍경과 정서를 노래한다.", "유사한 상황의 점층적 제시를 통해 주제를 강조한다.", "수미상관의 구조를 통해 안정감을 부여한다.", "화자와 청자의 대화를 통해 사건을 전개한다."], answer: 2, explanation: "2연, 3연, 4연은 각각 가난, 인권 유린, 실존적 고뇌라는 절망적 상황 속에서 '당신을 보았다'는 구조를 반복하고 점층적으로 심화시킴으로써 주제를 강조하고 있습니다." },
+                        { work: '장수산 1', type: '화자의 태도', passage: "오오 견디랸다 차고 올연(兀然)히", question: "위 구절에 드러난 화자의 태도로 가장 적절한 것은?", options: ["현실에 대한 적극적인 저항 의지", "속세에 대한 미련과 그리움", "자신의 처지에 대한 체념과 순응", "고통스러운 현실을 인내하려는 극기적 태도", "자연과의 합일을 통한 현실 도피"], answer: 3, explanation: "'견디랸다'라는 직접적인 표현과 '차고 올연히(차갑고 우뚝하게)'라는 부사어를 통해, 화자가 속세의 시름으로 괴롭지만 이를 의지적으로 참고 견뎌내려는 극기적이고 의연한 태도를 보여줍니다." },
+                        { work: '문법 요소', type: '사동 표현', question: "다음 중 사동 표현이 사용되지 않은 문장은?", options: ["어머니께서 아이에게 옷을 입히셨다.", "그는 친구에게 무거운 짐을 지웠다.", "선생님께서 학생들에게 책을 읽히셨다.", "나는 동생을 의자에 앉혔다.", "고드름이 햇살에 녹았다."], answer: 4, explanation: "'녹았다'는 '녹다'에 피동 접미사 '-기-'가 결합된 형태에 '-었-'이 붙은 피동 표현입니다. 나머지는 모두 주어가 남에게 동작을 하도록 시키는 사동 표현입니다." },
+                        { work: '문법 요소', type: '어휘의 종류', question: "다음 중 '고유어'만으로 짝지어진 것은?", options: ["하늘, 책상", "아버지, 버스", "사랑, 마음", "학교, 감기", "구두, 산"], answer: 2, explanation: "'사랑'과 '마음'은 모두 우리말에 본래부터 있던 고유어입니다. '책상', '학교', '감기'는 한자어이며, '버스', '구두'는 외래어입니다." },
+                        { work: '날개', type: '핵심 소재의 의미', question: "「날개」의 마지막 부분에서 '정오 사이렌'이 울리는 것이 '나'에게 어떤 계기를 제공하는가?", options: ["아내와의 행복했던 과거를 회상하는 계기", "무기력한 일상으로 다시 돌아가는 계기", "현실 도피적인 잠에 빠져드는 계기", "분열된 자아를 통합하고 새로운 삶의 의지를 각성하는 계기", "아내에 대한 복수를 결심하는 계기"], answer: 3, explanation: "정오 사이렌이라는 기계적이고 인공적인 소리는 '나'의 몽롱한 의식을 깨우고, 잊고 있던 '날개'의 존재를 상기시키며 무기력한 자아를 벗어나 새로운 삶으로 비상하려는 의지를 갖게 하는 각성의 계기가 됩니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '대조적 시어', question: "「어느 날 고궁을 나오면서」에서 화자가 저항해야 할 본질적인 대상과, 실제 저항하는 비본질적인 대상을 바르게 짝지은 것은?", options: ["왕궁 - 갈비", "소설가 - 야경꾼", "땅 주인 - 이발쟁이", "왕궁의 음탕 - 설렁탕집 주인", "월남 파병 - 개의 울음소리"], answer: 3, explanation: "'왕궁의 음탕'은 화자가 맞서 싸워야 할 거대하고 본질적인 부조리를, '설렁탕집 주인'은 화자가 옹졸하게 분개하는 사소하고 비본질적인 대상을 대표합니다. 이 둘의 대조를 통해 화자의 소시민성이 부각됩니다." },
+                        { work: '당신을 보았습니다', type: '작품의 성격', passage: "'민적(民籍) 없는 자는 인권이 없다. 인권이 없는 너에게 무슨 정조냐.'", question: "위와 같은 구절을 통해 알 수 있는 이 시의 성격은?", options: ["개인의 순수한 서정을 노래한 낭만적 성격", "자연의 아름다움을 관조하는 자연 친화적 성격", "일제 강점기라는 시대 현실을 반영한 저항적 성격", "종교적 깨달음을 추구하는 구도적 성격", "사물의 본질을 탐구하는 주지적 성격"], answer: 2, explanation: "호적('민적')이 없어 인권과 정조까지 유린당하는 상황은 일제 강점하에 주권을 빼앗긴 우리 민족의 비참한 현실을 상징적으로 보여줍니다. 따라서 이 시는 강한 현실 비판적, 저항적 성격을 지닙니다." },
+                        { work: '장수산 1', type: '공간의 분위기', question: "「장수산 1」에서 '눈과 밤이 조히보담 희고녀!'라는 표현을 통해 드러나는 '장수산'의 주된 분위기는?", options: ["활기차고 생동감 넘치는 분위기", "어둡고 공포스러운 분위기", "세속과 단절된 순수하고 깨끗한 분위기", "쓸쓸하고 애상적인 분위기", "신비롭고 환상적인 분위기"], answer: 2, explanation: "종이보다도 하얀 눈이 내린 밤의 풍경은 장수산이 속세의 더러움이 없는 순수하고 깨끗한 공간임을 시각적으로 강조하며, 탈속적인 분위기를 조성합니다." },
+                        { work: '작품 비교', type: '소재의 기능', question: "「날개」의 '아달린(수면제)'과 「어느 날 고궁을 나오면서」의 '야경꾼'은 화자에게 어떤 공통적인 역할을 하는가?", options: ["화자의 각성을 이끌어내는 존재", "화자의 무기력함과 옹졸함을 드러내는 소재", "화자가 동경하는 이상적인 대상", "화자의 경제적 능력을 상징하는 소재", "화자에게 정신적 안정을 주는 존재"], answer: 1, explanation: "아내가 주는 수면제를 무비판적으로 받아먹는 '나'의 모습은 그의 무기력함을, 힘없는 '야경꾼'에게만 분개하는 모습은 그의 옹졸함을 상징적으로 보여줍니다. 두 소재 모두 화자의 부정적인 면모를 드러내는 기능을 합니다." },
+                        { work: '작품 비교', type: '화자의 태도', question: "다음 중, 현실의 문제로부터 벗어나 자연이나 이상 세계로 나아가려는 '도피'의 태도가 가장 두드러지게 나타나는 작품은?", options: ["어느 날 고궁을 나오면서", "날개", "당신을 보았습니다", "장수산 1", "문법 요소"], answer: 3, explanation: "「장수산 1」의 화자는 속세의 '시름'을 잊기 위해 장수산이라는 깊은 산 속으로 들어와, '차고 올연히' 견디며 세속과 절연된 삶을 지향합니다. 이는 현실의 고통을 외면하고 자연으로 숨어들려는 도피적 태도로 볼 수 있습니다." },
+                        { work: '문법 요소', type: '시간 표현의 기능', passage: "선생님, 이러다 늦겠습니다.", question: "위 문장에서 선어말 어미 '-겠-'이 나타내는 의미는?", options: ["미래 시제", "화자의 강한 의지", "과거 사실에 대한 회상", "현재 상황에 대한 추측", "완곡하게 말하는 태도"], answer: 3, explanation: "이 문장에서 '-겠-'은 '늦을 것이다'라는 의미로, 현재의 상황(길이 막히는 등)을 근거로 미래의 일을 짐작하는 추측의 의미로 사용되었습니다." },
+                        { work: '문법 요소', type: '피동과 사동', question: "다음 밑줄 친 부분이 '피동' 표현인 것은?", options: ["어머니가 아이에게 책을 읽힌다.", "나는 동생에게 얼음물을 먹였다.", "사냥꾼에게 토끼가 잡혔다.", "선생님께서 철수에게 의자를 옮기게 하셨다.", "그는 친구를 웃겼다."], answer: 2, explanation: "'잡혔다'는 주어인 '토끼'가 '사냥꾼에게' 잡히는 동작을 당한 것이므로 피동 표현입니다. 나머지는 모두 주어가 남에게 어떤 동작을 하도록 시키는 사동 표현입니다." },
+                        { work: '날개', type: '서술 방식의 특징', question: "「날개」에서 '나는 아내와 인사하는 외에 누구와도 인사하고 싶지 않았다.'와 같이, '나'의 시점에서 서술될 때의 효과로 가장 적절한 것은?", options: ["모든 인물의 심리를 정확하게 전달할 수 있다.", "사건의 전모를 객관적으로 파악할 수 있다.", "아내의 입장에서 사건을 이해할 수 있다.", "'나'의 비정상적이고 분열된 내면 심리를 효과적으로 드러낼 수 있다.", "소설의 배경이 되는 시대 상황을 사실적으로 보여줄 수 있다."], answer: 3, explanation: "1인칭 주인공 시점은 주인공 '나'의 눈에 비친 세계와 그의 주관적인 생각, 감각만을 서술하기 때문에, 독자는 그의 불안하고 분열된 내면 심리를 직접적으로 체험하게 되는 효과가 있습니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '시어의 기능', question: "「어느 날 고궁을 나오면서」에서 '왕궁', '땅 주인', '구청 직원'이 공통적으로 상징하는 것은?", options: ["화자가 존경하는 대상", "화자가 동정하는 대상", "화자가 저항해야 하지만 저항하지 못하는 권력", "화자의 옹졸함을 부추기는 존재", "화자와 같은 처지에 있는 소시민"], answer: 2, explanation: "이들은 모두 화자가 마땅히 분개하고 저항해야 할 본질적인 권력을 상징하는 시어들입니다. 화자는 이들에게는 저항하지 못하고 만만한 대상에게만 분개하는 자신을 비판합니다." },
+                        { work: '당신을 보았습니다', type: '표현 방식', passage: "나는 집도 없고 다른 까닭을 겸하여 민적(民籍)이 없습니다.", question: "위와 같은 산문적인 서술 방식이 주는 주된 효과는?", options: ["운율감을 형성하여 음악성을 높인다.", "화자의 정서를 간결하고 함축적으로 전달한다.", "독자의 상상력을 자극하여 다양한 해석을 가능하게 한다.", "화자의 생각과 처지를 논리적이고 직설적으로 전달한다.", "시의 분위기를 신비롭고 몽환적으로 만든다."], answer: 3, explanation: "이 시는 운율이나 비유보다는 산문과 같은 긴 호흡의 문장을 사용하여 화자가 처한 굴욕적인 상황과 그에 대한 생각을 논리적이고 직접적으로 서술하는 특징이 있습니다." },
+                        { work: '장수산 1', type: '화자의 정서', passage: "시름은 바람도 일지 않는 고요에 심히 흔들리우노니", question: "위 구절에 드러난 화자의 내면 상태를 가장 잘 설명한 것은?", options: ["겉으로는 고요한 자연 속에 있지만 내면은 속세의 번뇌로 흔들리고 있다.", "자연의 고요함 덕분에 마음의 평화를 찾았다.", "바람이 불지 않아 답답함과 지루함을 느끼고 있다.", "자신의 슬픔 때문에 자연마저 고요하게 느껴진다.", "자연의 거대함 앞에서 무력감을 느끼고 있다."], answer: 0, explanation: "이 구절은 역설적인 표현으로, 외부 세계('장수산')는 바람 한 점 없이 고요하지만, 화자의 내면은 '시름'으로 인해 심하게 흔들리고 있음을 보여줍니다. 즉, 자연과 화자의 내면이 대비를 이루고 있습니다." },
+                        { work: '작품 비교', type: '인물의 공통점', question: "「날개」의 '나'와 「장수산 1」의 화자가 보이는 공통적인 삶의 태도는?", options: ["현실에 적극적으로 참여하여 문제를 해결하려 한다.", "세속적인 가치를 추구하며 부를 쌓으려 한다.", "현실의 문제에서 벗어나 자신만의 공간에 머무르려 한다.", "가족에 대한 희생과 사랑을 실천하려 한다.", "자연의 아름다움을 예찬하며 풍류를 즐긴다."], answer: 2, explanation: "「날개」의 '나'는 자신의 방에, 「장수산 1」의 화자는 깊은 산 속에 머물며 현실의 문제로부터 거리를 두거나 도피하려는 모습을 보입니다. 둘 다 현실에서 벗어나 자신만의 공간에 머무르려는 공통점이 있습니다." },
+                        { work: '작품 비교', type: '주제 의식', question: "다음 중, 소외되고 무기력한 지식인의 자기 반성적 고뇌라는 주제 의식이 가장 두드러지는 작품은?", options: ["이생규장전", "상춘곡", "어느 날 고궁을 나오면서", "당신을 보았습니다", "정석가"], answer: 2, explanation: "「어느 날 고궁을 나오면서」는 사회의 부조리에 정면으로 맞서지 못하고 사소한 일에만 분개하는 지식인 화자의 자기 비판과 성찰을 가장 직접적으로 다루고 있는 작품입니다." },
+                        { work: '문법 요소', type: '어휘의 종류와 효과', question: "학술 담화에서 한자어나 외래어로 된 전문어를 사용하는 주된 이유로 가장 적절한 것은?", options: ["글의 분량을 늘리기 위해서", "독자의 이해를 어렵게 만들기 위해서", "글쓴이의 지식을 과시하기 위해서", "친근하고 부드러운 느낌을 주기 위해서", "개념을 정밀하고 효율적으로 전달하기 위해서"], answer: 4, explanation: "한자어나 외래어로 된 전문어는 특정 분야의 개념을 가장 정확하고 효율적으로 나타낼 수 있기 때문에 학술 담화에서 주로 사용됩니다." },
+                        { work: '문법 요소', type: '높임 표현의 실현', question: "다음 중 선어말 어미 '-(으)시-'를 통해 주체를 '간접적으로' 높이는 문장은?", options: ["선생님께서 교실에 들어오신다.", "할머니께서는 귀가 밝으시다.", "아버지는 지금 신문을 보신다.", "그분은 우리 학교 교장 선생님이시다.", "어머니께서 시장에 가신다."], answer: 1, explanation: "'귀가 밝으시다'는 주체인 '할머니'의 신체 일부인 '귀'를 높임으로써 주체인 할머니를 간접적으로 높이는 간접 높임 표현입니다. 나머지는 모두 주체를 직접 높이는 직접 높임입니다." },
+                        { work: '날개', type: '결말의 의미', question: "「날개」의 마지막 구절, '날개야 다시 돋아라. / 날자. 날자. 날자. 한 번만 더 날자꾸나.'에 담긴 화자의 의지로 가장 적절한 것은?", options: ["현실로부터 완전히 도피하려는 의지", "아내에게로 다시 돌아가려는 의지", "무기력한 자아를 극복하고 본래적 자아를 회복하려는 의지", "새처럼 하늘을 날고 싶은 비현실적 소망", "과거의 잘못을 반복하지 않으려는 다짐"], answer: 2, explanation: "이 구절은 '나'가 닫힌 방과 무기력한 삶에서 벗어나, 억압되었던 본래의 자아('날개')를 회복하고 새로운 삶을 향해 비상하고 싶다는 강렬한 의지와 희망을 상징적으로 보여줍니다." },
+                        { work: '어느 날 고궁을 나오면서', type: '표현 방식', question: "「어느 날 고궁을 나오면서」에서 화자가 자신의 행동을 '옹졸하게 분개하고', '옹졸하게 욕을 하고', '옹졸하게 반항한다'고 반복해서 표현한 이유는?", options: ["자신의 행동에 대한 정당성을 부여하기 위해", "자신의 옹졸하고 소시민적인 모습을 자조적으로 강조하기 위해", "점점 더 대담해지는 자신의 모습을 보여주기 위해", "'옹졸함'의 사전적 의미를 설명하기 위해", "독자에게 강한 교훈을 주기 위해"], answer: 1, explanation: "'옹졸하게'라는 부사를 반복적으로 사용하여, 거대한 부조리에는 침묵하고 사소한 일에만 반응하는 자신의 행동이 얼마나 보잘것없고 비겁한지를 스스로 비웃고 강조하는(자조) 효과를 거두고 있습니다." },
+                        { work: '당신을 보았습니다', type: '작품의 구성', passage: "나는 갈고 심을 땅이 없으므로 추수가 없습니다. (...) 나는 집도 없고 다른 까닭을 겸하여 민적(民籍)이 없습니다.", question: "위 구절에서 화자가 '땅'과 '민적'이 없다고 말하는 것은 무엇을 상실한 상황을 비유하는가?", options: ["경제적 능력", "가족과 친구", "종교적 신념", "개인의 존엄성", "국가 주권"], answer: 4, explanation: "개인이 소유하는 '땅'과 국가의 구성원임을 증명하는 '민적'이 없다는 것은, 일제 강점기에 국토와 주권을 모두 빼앗긴 우리 민족의 비참한 현실을 상징적으로 보여줍니다." }
+                    ]
+                }
+            };
+        
+            const tabContainer = document.getElementById('tab-container');
+            const contentArea = document.getElementById('content-area');
+
+            function renderTest(testId, test) {
+                let questionsHtml = '';
+                test.questions.forEach((q, index) => {
+                    const optionsHtml = q.options.map((opt, i) => `
+                        <div class="mt-2">
+                            <input type="radio" name="question${index}" id="q${index}o${i}" value="${i}">
+                            <label for="q${index}o${i}" class="option-label">
+                               <span class="font-mono mr-2">${i + 1}</span> ${opt}
+                            </label>
+                        </div>
+                    `).join('');
+                    questionsHtml += `
+                        <div class="question-card" data-work="${q.work}" data-type="${q.type}" data-answer="${q.answer}">
+                            <h3 class="font-semibold text-lg mb-2 text-gray-800">${index + 1}. ${q.question}</h3>
+                            ${q.passage ? `<div class="prose-box"><p>${q.passage}</p></div>` : ''}
+                            <div class="space-y-2">${optionsHtml}</div>
+                        </div>
+                    `;
+                });
+                
+                contentArea.innerHTML = `
+                    <div id="test-container">
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                            <label for="student-name" class="block text-lg font-semibold text-gray-700 mb-2">이름을 입력하세요:</label>
+                            <input type="text" id="student-name" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="이름">
+                        </div>
+                        ${questionsHtml}
+                        <div class="text-center mt-8">
+                            <button id="submit-btn" class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg text-lg hover:bg-indigo-700 transition duration-300">제출하기</button>
+                        </div>
+                    </div>
+                    <div id="result-container" class="hidden"></div>
+                `;
+                
+                document.getElementById('submit-btn').addEventListener('click', () => handleSubmit(testId));
+            }
+
+            function renderResults(name, score, correctCount, questions, userAnswers, weakestWork, weakestType) {
+                let detailedResultsHtml = '<h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">상세 해설</h3>';
+                questions.forEach((q, index) => {
+                    const userAnswer = userAnswers[index];
+                    const isCorrect = userAnswer === q.answer;
+                    
+                    const optionsHtml = q.options.map((opt, i) => {
+                        let labelClass = "option-label";
+                        if(i === q.answer) {
+                            labelClass += " correct";
+                        } else if (i === userAnswer && !isCorrect) {
+                            labelClass += " incorrect";
+                        }
+                        
+                        return `<div class="mt-2"><div class="${labelClass}"><span class="font-mono mr-2">${i + 1}</span> ${opt}</div></div>`;
+                    }).join('');
+
+                    detailedResultsHtml += `
+                        <div class="question-card">
+                            <h4 class="font-semibold text-lg mb-2">${index + 1}. ${isCorrect ? '<span class="text-green-600 font-bold">[정답]</span>' : '<span class="text-red-600 font-bold">[오답]</span>'} ${q.question}</h4>
+                            ${q.passage ? `<div class="prose-box"><p>${q.passage}</p></div>` : ''}
+                            <div class="space-y-2">${optionsHtml}</div>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-md">
+                                <p class="font-semibold text-gray-700">해설</p>
+                                <p class="text-gray-600 text-sm mt-1">${q.explanation}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                const resultContainer = document.getElementById('result-container');
+                resultContainer.innerHTML = `
+                    <div class="question-card text-center">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">시험 결과: ${name} 학생</h2>
+                        <p class="text-6xl font-bold text-indigo-600 my-6">${score}<span class="text-3xl text-gray-500">점</span></p>
+                        <p class="text-lg text-gray-700">${questions.length}문제 중 ${correctCount}문제 정답</p>
+                        <div id="submission-status"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                         <div class="question-card">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">취약점 분석</h3>
+                            <div class="space-y-3">
+                                <p class="text-gray-700"><strong>가장 많이 틀린 작품:</strong> <span class="font-semibold text-red-600">${weakestWork}</span></p>
+                                <p class="text-gray-700"><strong>가장 많이 틀린 유형:</strong> <span class="font-semibold text-red-600">${weakestType}</span></p>
+                            </div>
+                         </div>
+                         <div class="question-card">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">학습 가이드</h3>
+                            <p class="text-gray-700">'${weakestWork}' 작품의 핵심 정리 노트를 다시 한번 꼼꼼히 복습하고, '${weakestType}' 유형의 문제 풀이 전략을 보충하는 것이 좋겠습니다. 오답 노트를 작성하여 틀린 문제를 완벽하게 이해하는 것이 중요합니다.</p>
+                         </div>
+                    </div>
+
+                    <div class="mt-12">${detailedResultsHtml}</div>
+                `;
+                resultContainer.classList.remove('hidden');
+            }
+
+            async function sendDataToGoogleSheet(data) {
+                const statusDiv = document.getElementById('submission-status');
+                if (!SCRIPT_URL) {
+                    console.error("Google Apps Script URL이 설정되지 않았습니다.");
+                    if(statusDiv) {
+                        statusDiv.textContent = '결과 전송 URL이 설정되지 않았습니다. 관리자에게 문의하세요.';
+                        statusDiv.className = 'error';
+                        statusDiv.style.display = 'block';
+                    }
+                    return;
+                }
+
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8', 
+                        },
+                    });
+                    
+                    if(statusDiv) {
+                        statusDiv.textContent = '성공적으로 제출되었습니다!';
+                        statusDiv.className = 'success';
+                        statusDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                     if(statusDiv) {
+                        statusDiv.textContent = '제출 중 오류가 발생했습니다. 다시 시도해주세요.';
+                        statusDiv.className = 'error';
+                        statusDiv.style.display = 'block';
+                    }
+                    console.error('Error:', error);
+                }
+            }
+            
+            function handleSubmit(testId) {
+                const studentName = document.getElementById('student-name').value.trim();
+                if (!studentName) {
+                     const nameInput = document.getElementById('student-name');
+                     nameInput.classList.add('border-red-500', 'focus:ring-red-500');
+                     nameInput.placeholder = "이름을 먼저 입력해주세요!";
+                     nameInput.focus();
+                     return;
+                }
+
+                const questions = examData[testId].questions;
+                const questionElements = document.querySelectorAll('.question-card');
+                let score = 0;
+                let correctCount = 0;
+                const userAnswers = [];
+                const analysis = { byWork: {}, byType: {} };
+
+                questionElements.forEach((qEl, index) => {
+                    const selected = qEl.querySelector(`input[name="question${index}"]:checked`);
+                    const userAnswer = selected ? parseInt(selected.value) : -1;
+                    userAnswers.push(userAnswer);
+                    
+                    const correctAnswer = parseInt(qEl.dataset.answer);
+                    const work = qEl.dataset.work;
+                    const type = qEl.dataset.type;
+
+                    if (userAnswer === correctAnswer) {
+                        correctCount++;
+                    } else {
+                        analysis.byWork[work] = (analysis.byWork[work] || 0) + 1;
+                        analysis.byType[type] = (analysis.byType[type] || 0) + 1;
+                    }
+                });
+
+                score = Math.round((correctCount / questions.length) * 100);
+                
+                const findWeakest = (data) => {
+                    let weakest = '없음';
+                    let maxErrors = 0;
+                    for (const key in data) {
+                        if (data[key] > maxErrors) {
+                            maxErrors = data[key];
+                            weakest = key;
+                        }
+                    }
+                    return weakest;
+                };
+
+                const weakestWork = findWeakest(analysis.byWork);
+                const weakestType = findWeakest(analysis.byType);
+
+                const resultData = {
+                    timestamp: new Date().toLocaleString("ko-KR"),
+                    studentName: studentName,
+                    testTitle: examData[testId].title,
+                    score: score,
+                    correctCount: correctCount,
+                    totalQuestions: questions.length,
+                    weakestWork: weakestWork,
+                    weakestType: weakestType,
+                };
+                
+                sendDataToGoogleSheet(resultData);
+
+                document.getElementById('test-container').classList.add('hidden');
+                renderResults(studentName, score, correctCount, questions, userAnswers, weakestWork, weakestType);
+            }
+
+            function switchTab(testId) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                const currentTab = document.querySelector(`.tab[data-id="${testId}"]`);
+                if(currentTab) currentTab.classList.add('active');
+
+                contentArea.innerHTML = '';
+                const test = examData[testId];
+
+                if (test.questions && test.questions.length > 0) {
+                    renderTest(testId, test);
+                } else {
+                    contentArea.innerHTML = `
+                        <div class="question-card text-center py-20">
+                            <h2 class="text-3xl font-bold text-gray-800 mb-4">${test.title}</h2>
+                            <p class="text-gray-600 text-lg">시험지가 준비 중입니다.</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // --- Initialization ---
+            const tests = Object.keys(examData);
+            tests.forEach((testId) => {
+                const tab = document.createElement('a');
+                tab.className = 'tab';
+                tab.textContent = examData[testId].title;
+                tab.dataset.id = testId;
+                tab.addEventListener('click', () => switchTab(testId));
+                tabContainer.appendChild(tab);
+            });
+            
+            switchTab('test1');
+        });
+    </script>
+</body>
+</html>
